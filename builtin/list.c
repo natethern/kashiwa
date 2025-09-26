@@ -176,3 +176,7 @@ void builtin_objcdr(env_t* env, cont_t* cont, lobject x) {
   RAW_CONTINUE1(cont, ((cons_t*)REM_PTAG(x))->cdr);
 }
 
+void builtin_tag(env_t* env, cont_t* cont, lobject x) {
+  RAW_CONTINUE1(cont, INT2FIXNUM(((cons_t*)REM_PTAG(x))->tag));
+}
+

@@ -36,6 +36,7 @@ extern lobject builtin_clos_cplus2;
 extern lobject builtin_clos_object;
 extern lobject builtin_clos_objcar;
 extern lobject builtin_clos_objcdr;
+extern lobject builtin_clos_tag;
 
 void init_builtin();
 
@@ -65,5 +66,6 @@ void builtin_cplus2(env_t* env, cont_t* cont, lobject x, lobject y);
 void builtin_object(env_t* env, cont_t* cont, lobject x, lobject y);
 void builtin_objcar(env_t* env, cont_t* cont, lobject x);
 void builtin_objcdr(env_t* env, cont_t* cont, lobject x);
+void builtin_tag(env_t* env, cont_t* cont, lobject x);
 
 #endif

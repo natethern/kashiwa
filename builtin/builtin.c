@@ -32,6 +32,7 @@ lobject builtin_clos_cplus2;
 lobject builtin_clos_object;
 lobject builtin_clos_objcar;
 lobject builtin_clos_objcdr;
+lobject builtin_clos_tag;
 
 void init_builtin_clos() {
   MAKE_BUILTIN_CLOS(builtin_clos_cons, builtin_cons, 3, 0);
@@ -51,9 +52,10 @@ void init_builtin_clos() {
   /* new binary ops */
   MAKE_BUILTIN_CLOS(builtin_clos_cplus2, builtin_cplus2, 3, 0);
   /* new object builtins */
-  MAKE_BUILTIN_CLOS(builtin_clos_object, builtin_cons, 3, 0);
-  MAKE_BUILTIN_CLOS(builtin_clos_objcar, builtin_car, 2, 0);
-  MAKE_BUILTIN_CLOS(builtin_clos_objcdr, builtin_cdr, 2, 0);
+  MAKE_BUILTIN_CLOS(builtin_clos_object, builtin_object, 3, 0);
+  MAKE_BUILTIN_CLOS(builtin_clos_objcar, builtin_objcar, 2, 0);
+  MAKE_BUILTIN_CLOS(builtin_clos_objcdr, builtin_objcdr, 2, 0);
+  MAKE_BUILTIN_CLOS(builtin_clos_tag, builtin_tag, 2, 0);
 }
 
 void init_builtin() {
