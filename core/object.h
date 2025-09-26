@@ -23,6 +23,7 @@ typedef unsigned long int lobject;
 #define TAG_SYMBOL     4
 #define TAG_BOOLEAN    5
 #define TAG_NIL        6
+#define TAG_OBJ        7
 #define TAG_FORWARDING ~((unsigned int)0)
 
 /* env_t is used for lexical scope.

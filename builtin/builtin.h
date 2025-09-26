@@ -29,6 +29,14 @@ extern lobject builtin_clos_call_with_current_continuation;
 extern lobject builtin_clos_write;
 extern lobject builtin_clos_newline;
 
+/* new binary ops */
+extern lobject builtin_clos_cplus2;
+
+/* new object builtins */
+extern lobject builtin_clos_object;
+extern lobject builtin_clos_objcar;
+extern lobject builtin_clos_objcdr;
+
 void init_builtin();
 
 /* 6.2.5. Numerical operations */
@@ -49,5 +57,13 @@ void builtin_call_with_current_continuation (env_t* env, cont_t* cont,
 /* 6.6.3. Output */
 void builtin_write(env_t* env, unsigned int num_args, ...);
 void builtin_newline(env_t* env, unsigned int num_args, ...);
+
+/* new binary ops */
+void builtin_cplus2(env_t* env, cont_t* cont, lobject x, lobject y);
+
+/* new object builtins */
+void builtin_object(env_t* env, cont_t* cont, lobject x, lobject y);
+void builtin_objcar(env_t* env, cont_t* cont, lobject x);
+void builtin_objcdr(env_t* env, cont_t* cont, lobject x);
 
 #endif

@@ -26,6 +26,12 @@ lobject builtin_clos_call_with_current_continuation;
 /* 6.6.3. Output */
 lobject builtin_clos_write;
 lobject builtin_clos_newline;
+/* new binary ops */
+lobject builtin_clos_cplus2;
+/* new object builtins */
+lobject builtin_clos_object;
+lobject builtin_clos_objcar;
+lobject builtin_clos_objcdr;
 
 void init_builtin_clos() {
   MAKE_BUILTIN_CLOS(builtin_clos_cons, builtin_cons, 3, 0);
@@ -42,6 +48,12 @@ void init_builtin_clos() {
   MAKE_BUILTIN_CLOS(builtin_clos_sla, builtin_list_sla, 3, 1);
   MAKE_BUILTIN_CLOS(builtin_clos_list, builtin_list_list, 2, 1);
   MAKE_BUILTIN_CLOS(builtin_clos_liststar, builtin_list_liststar, 2, 1);
+  /* new binary ops */
+  MAKE_BUILTIN_CLOS(builtin_clos_cplus2, builtin_cplus2, 3, 0);
+  /* new object builtins */
+  MAKE_BUILTIN_CLOS(builtin_clos_object, builtin_cons, 3, 0);
+  MAKE_BUILTIN_CLOS(builtin_clos_objcar, builtin_car, 2, 0);
+  MAKE_BUILTIN_CLOS(builtin_clos_objcdr, builtin_cdr, 2, 0);
 }
 
 void init_builtin() {

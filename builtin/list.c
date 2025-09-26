@@ -19,11 +19,19 @@ void builtin_car(env_t* env, cont_t* cont, lobject x) {
     fprintf(stderr, "pair required\n");
     exit(1);
   }
+  if (((cons_t*)REM_PTAG(x))->tag != TAG_CONS) {
+    fprintf(stderr, "pair required\n");
+    exit(1);
+  }
   RAW_CONTINUE1(cont, ((cons_t*)REM_PTAG(x))->car);
 }
 
 void builtin_cdr(env_t* env, cont_t* cont, lobject x) {
   if (GET_PTAG(x) != PTAG_CONS) {
+    fprintf(stderr, "pair required\n");
+    exit(1);
+  }
+  if (((cons_t*)REM_PTAG(x))->tag != TAG_CONS) {
     fprintf(stderr, "pair required\n");
     exit(1);
   }
@@ -131,3 +139,40 @@ void builtin_list_liststar(env_t* env, lobject cont, lobject opt) {
     CONTINUE1(cont, ADD_PTAG(p, PTAG_CONS));
   }
 }
+
+/* new - implement objects
+   every object is just a cons pair, but the pair has
+   a tag of TAG_OBJ instead of TAG_CONS */
+
+void builtin_object(env_t* env, cont_t* cont, lobject x, lobject y) {
+  cons_t ret;
+  ret.tag = TAG_OBJ;
+  ret.car = x;
+  ret.cdr = y;
+  RAW_CONTINUE1(cont, ADD_PTAG(&ret, PTAG_CONS));
+}
+
+void builtin_objcar(env_t* env, cont_t* cont, lobject x) {
+  if (GET_PTAG(x) != PTAG_CONS) {
+    fprintf(stderr, "pair required\n");
+    exit(1);
+  }
+  if (((cons_t*)REM_PTAG(x))->tag != TAG_OBJ) {
+    fprintf(stderr, "object pair required\n");
+    exit(1);
+  }
+  RAW_CONTINUE1(cont, ((cons_t*)REM_PTAG(x))->car);
+}
+
+void builtin_objcdr(env_t* env, cont_t* cont, lobject x) {
+  if (GET_PTAG(x) != PTAG_CONS) {
+    fprintf(stderr, "pair required\n");
+    exit(1);
+  }
+  if (((cons_t*)REM_PTAG(x))->tag != TAG_OBJ) {
+    fprintf(stderr, "object pair required\n");
+    exit(1);
+  }
+  RAW_CONTINUE1(cont, ((cons_t*)REM_PTAG(x))->cdr);
+}
+

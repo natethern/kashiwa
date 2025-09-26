@@ -183,3 +183,13 @@ void builtin_list_sla(env_t* env, lobject cont, lobject x, lobject opt) {
     CONTINUE1(cont, INT2FIXNUM(sum));
   }
 }
+
+/* new binary ops */
+
+void builtin_cplus2(env_t* env, cont_t* cont, lobject x, lobject y) {
+  int sum;
+  sum = FIXNUM2INT(x) + FIXNUM2INT(y);
+  RAW_CONTINUE1(cont, INT2FIXNUM(sum));
+}
+
+

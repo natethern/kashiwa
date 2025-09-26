@@ -201,6 +201,7 @@ static void scan_lobject(void* p, size_t* size) {
     ((cont_t*)p)->env = copy_env(((cont_t*)p)->env);
     break;
   case TAG_CONS:
+  case TAG_OBJ:
     *size = sizeof(cons_t);
     ((cons_t*)p)->car = copy_lobject(((cons_t*)p)->car);
     ((cons_t*)p)->cdr = copy_lobject(((cons_t*)p)->cdr);
