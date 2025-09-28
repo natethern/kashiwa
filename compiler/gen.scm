@@ -293,7 +293,8 @@
             (list 'if (list sym " == 0")
                   (list
                    (list sym " = intern(\"" (cadr exp) "\")")
-                   (list "add_symbol_rootset(&" sym ")"))
+                   ;;(list "add_symbol_rootset(&" sym ")")
+                   )
                   (list ""))
             fun)
            sym))

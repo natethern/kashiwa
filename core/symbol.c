@@ -6,7 +6,7 @@
 
 #define INITIAL_SYMBOL_TABLE_ENTRY 1024
 #define INITIAL_SYMBOL_STRING_SIZE 8192
-#define INITIAL_SYMBOL_ROOTSET_ENTRY 256
+//#define INITIAL_SYMBOL_ROOTSET_ENTRY 256
 
 static char* symbol_string;
 static char* symbol_string_end;
@@ -22,10 +22,10 @@ static symbol_t* symbol_table_from;
 static symbol_t* symbol_table_free;
 static size_t symbol_table_size;
 
-static void** symbol_rootset;
-static size_t symbol_rootset_size;
-static void** symbol_rootset_end;
-static void** symbol_rootset_free;
+//static void** symbol_rootset;
+//static size_t symbol_rootset_size;
+//static void** symbol_rootset_end;
+//static void** symbol_rootset_free;
 
 void init_symbol() {
   symbol_string_size = INITIAL_SYMBOL_STRING_SIZE;
@@ -40,9 +40,9 @@ void init_symbol() {
   symbol_table_from = symbol_table;
   symbol_table_to = symbol_table + symbol_table_size / sizeof(symbol_t*) / 2;
 
-  symbol_rootset_size = sizeof(void*) * INITIAL_SYMBOL_ROOTSET_ENTRY;
-  symbol_rootset = symbol_rootset_free = (void**)malloc(symbol_rootset_size);
-  symbol_rootset_end = symbol_rootset + INITIAL_SYMBOL_ROOTSET_ENTRY;
+  //symbol_rootset_size = sizeof(void*) * INITIAL_SYMBOL_ROOTSET_ENTRY;
+  //symbol_rootset = symbol_rootset_free = (void**)malloc(symbol_rootset_size);
+  //symbol_rootset_end = symbol_rootset + INITIAL_SYMBOL_ROOTSET_ENTRY;
 }
 
 static char* add_symbol_name(char* name) {
@@ -76,6 +76,7 @@ lobject intern(char* name) {
   return ADD_PTAG(p, PTAG_OTHER);
 }
 
+/*
 void add_symbol_rootset(void* root) {
   if (symbol_rootset_free == symbol_rootset_end) {
     symbol_rootset = (void**)realloc(symbol_rootset, symbol_rootset_size * 2);
@@ -90,3 +91,4 @@ void add_symbol_rootset(void* root) {
   *symbol_rootset_free = root;
   ++symbol_rootset_free;
 }
+*/
