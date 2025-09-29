@@ -77,11 +77,3 @@ void init_builtin() {
   nil = ADD_PTAG(n, PTAG_OTHER);
   init_builtin_clos();
 }
-
-void builtin_eqP(env_t* env, cont_t* cont, lobject x, lobject y) {
-  if (x == y) {
-    CONTINUE1(cont, sharpt);
-  } else {
-    CONTINUE1(cont, sharpf);
-  }
-}

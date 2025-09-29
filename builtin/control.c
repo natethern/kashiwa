@@ -9,3 +9,13 @@ void builtin_call_with_current_continuation (env_t* env, cont_t* cont,
   cp.c = cont;
   CONTINUE2(proc, cont, ADD_PTAG(&cp, PTAG_OTHER));
 }
+
+/* eqP */
+
+void builtin_eqP(env_t* env, cont_t* cont, lobject x, lobject y) {
+  if (x == y) {
+    CONTINUE1(cont, sharpt);
+  } else {
+    CONTINUE1(cont, sharpf);
+  }
+}
