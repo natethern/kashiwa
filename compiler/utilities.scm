@@ -248,7 +248,7 @@
   '(
     ;; 6.1. Equivalence predicates
     ;(eqv? 2 0)
-    ;(eq? 2 0)
+    (eqP 2 0)
     ;(equal? 2 0)  ; library procedure
     ;; 6.2.5. Numerical operations
     ;(number? 1 0)
@@ -401,7 +401,7 @@
     ;(map 2 1)  ; library procedure
     ;(for-each 2 1)  ; library procedure
     ;(force 1 0)  ; library procedure
-    ;(call-with-current-continuation 1 0)
+    (call-with-current-continuation 1 0)
     ;(values 0 1)
     ;(call-with-values 2 0)
     ;(dynamic-wind 3 0)

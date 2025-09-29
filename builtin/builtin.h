@@ -38,6 +38,9 @@ extern lobject builtin_clos_objcar;
 extern lobject builtin_clos_objcdr;
 extern lobject builtin_clos_tag;
 
+/* new core builtins */
+extern lobject builtin_clos_eqP;
+
 void init_builtin();
 
 /* 6.2.5. Numerical operations */
@@ -67,5 +70,8 @@ void builtin_object(env_t* env, cont_t* cont, lobject x, lobject y);
 void builtin_objcar(env_t* env, cont_t* cont, lobject x);
 void builtin_objcdr(env_t* env, cont_t* cont, lobject x);
 void builtin_tag(env_t* env, cont_t* cont, lobject x);
+
+/* new core builtins */
+void builtin_eqP(env_t* env, cont_t* cont, lobject x, lobject y);
 
 #endif

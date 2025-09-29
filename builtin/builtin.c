@@ -33,6 +33,8 @@ lobject builtin_clos_object;
 lobject builtin_clos_objcar;
 lobject builtin_clos_objcdr;
 lobject builtin_clos_tag;
+/* new core builtins */
+lobject builtin_clos_eqP;
 
 void init_builtin_clos() {
   MAKE_BUILTIN_CLOS(builtin_clos_cons, builtin_cons, 3, 0);
@@ -56,6 +58,8 @@ void init_builtin_clos() {
   MAKE_BUILTIN_CLOS(builtin_clos_objcar, builtin_objcar, 2, 0);
   MAKE_BUILTIN_CLOS(builtin_clos_objcdr, builtin_objcdr, 2, 0);
   MAKE_BUILTIN_CLOS(builtin_clos_tag, builtin_tag, 2, 0);
+/* new core builtins */
+  MAKE_BUILTIN_CLOS(builtin_clos_eqP, builtin_eqP, 3, 0);
 }
 
 void init_builtin() {
@@ -72,4 +76,12 @@ void init_builtin() {
   n->tag = TAG_NIL;
   nil = ADD_PTAG(n, PTAG_OTHER);
   init_builtin_clos();
+}
+
+void builtin_eqP(env_t* env, cont_t* cont, lobject x, lobject y) {
+  if (x == y) {
+    CONTINUE1(cont, sharpt);
+  } else {
+    CONTINUE1(cont, sharpf);
+  }
 }
