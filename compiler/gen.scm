@@ -327,7 +327,7 @@
   (let ((clos (gensym "clos"))
         (cenv
          (if (> (- (length (function-args fun)) 1) num-arguments-limit)
-             (cdadr (function-args gun))
+             (cdadr (function-args fun))
              (cdr (list-ref (function-vars fun)
                             (- (length (function-vars fun)) 1))))))
     (push-function-vars! (cons "cont_t" clos) fun)
@@ -429,7 +429,8 @@
   (let ((name (function-name fun))
         (args (map cdr (function-args fun))))
     (if (> (- (length args) 1) num-arguments-limit)
-        (set! args (list (car args) (cadr args))))
+        (set! args (list (car args) (cadr args)))
+        #f)
     (append
      (list* "check_stack(" name ", " (car args) ", " (length (cdr args)) ", "
             (implode ", " (cdr args)))
@@ -442,13 +443,15 @@
             (args (cadr exp))
             (body (caddr exp)))
         (if (has-optional? args)
-            (set! args (improper-list->proper-list args)))
+            (set! args (improper-list->proper-list args))
+            #f)
         (set-function-name! fun (gensym "fun"))
         (set-function-args!
          fun
          (map (lambda (x) (cons 'lobject x)) args))
         (if (> (length args) num-arguments-limit)
-            (push-function-args! (cons "env_t*" (gensym "args")) fun))
+            (push-function-args! (cons "env_t*" (gensym "args")) fun)
+            #f)
         (push-function-args! (cons "env_t*" (gensym "penv")) fun)
         (push-function-body! (gen-check-stack-code fun) fun)
         (if (> (length args) num-arguments-limit)
@@ -456,7 +459,8 @@
             (if (has-lambda? body)
                 (begin
                   (push-function-vars! (cons "env_t*" (gensym "cenv")) fun)
-                  (push-function-body! (gen-current-env fun) fun))))
+                  (push-function-body! (gen-current-env fun) fun))
+                #f))
         (add-lambda-name exp (function-name fun))
         (push-function-body!
          (gen-apply-code body (cons args env) fun)
