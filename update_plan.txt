@@ -1,0 +1,54 @@
+1. Add a new "object" type
+  a. a cons cell with a different type tag DONE
+  b. builtins: object (cons) objcar (car) objcdr (cdr) DONE
+    probably hide all these after library is built
+  c. add to VM DONE
+  d. add to GC DONE
+
+2. New builtins from BIT Librarie
+  a. cplus2 DONE
+  b. cppoe2 (<=) cmoins2 (-) cfois2 (*) cdivise2 (/)
+  c. apply1 (?)
+
+3. redo builtins & add library
+  a. 4 categories
+    i) public builtins
+    ii) hidden (helper) builtins
+    iii) public library procs
+    iv) hidden library procs
+  b. hidden builtins & library procs are inaccessible after library initialization
+  c. redo name mapping for builtins/lib-procs with non-c compatible names
+
+4. redo how all symbols are handled
+  a. every symbol added to a rename map
+    i) regardless of if c-compatible or not
+    ii) prevents collisions
+  b. quoted symbols added to different map
+    i) in C code, defined at top level so string memory allocated immediately
+    ii) string->symbol symbols are actually objects
+
+5. run source through alexpander
+  a. Only BEGIN, DEFINE, DELAY, IF, LAMBDA, LETREC, QUOTE, AND SET!
+
+6. types
+  a. builtin PTAG_* types are 
+    i) CONT CONS (pair) FIXNUM OTHER
+    ii) FIXNUMs are not pointers & do not have a TAG_*
+  b. builtin TAG_* types are
+    CONT CONS ENV CONT_PROC SYMBOL
+    BOOLEAN NIL FORWARDING (not sure what it's for)
+    OBJ (new)
+  c. add TAG_OBJ tag
+    i) also has CONS PTAG
+    ii) garbage-collected like cons cell
+  d. existing r7rs types:
+    i) boolean null pair procedure
+    ii) symbol (partial - constant symbols in source only)
+    iii) number (FIXNUMs only)
+  e. library types
+    i) bytevector (r7rs) char string vector
+    ii) char will be a FIXNUM wrapped in OBJ
+    iii) eof-object & port will be created by new builtins & wrapped in OBJ
+    iv) number - numeric tower implemented on FIXNUM
+
+
