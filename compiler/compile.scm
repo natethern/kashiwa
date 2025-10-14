@@ -2,6 +2,44 @@
 (load "cps.scm")
 (load "macro.scm")
 
+(define source-symbols '())
+
+(define (encode-source-symbols source)
+  (cond
+    ((pair? source)
+     (cons (encode-source-symbols (car source))
+           (encode-source-symbols (cdr source))))
+    ((symbol? source)
+     (let* ((smbl source)
+            (sym-vec (assq smbl source-symbols)))
+       (if sym-vec
+           (cadr sym-vec)
+           (let ((sym-vec (vector smbl #f)))
+             (set! source-symbols
+                   (cons (list smbl sym-vec)
+                         source-symbols))
+             (let ((builtin (assoc smbl builtin-list)))
+               (if builtin
+                   (set! builtin-list
+                         (cons (cons sym-vec (cdr builtin))
+                               builtin-list))
+                   #f))
+             sym-vec))))
+    (else source)))
+
+(define (source-unvec exp)
+  (if (vector? exp)
+      (vector-ref exp 0)
+      exp))
+
+(define (id x) (+) x)
+(define (cons* first . rest)
+  (let recur ((x first) (rest rest))
+    (if (pair? rest)
+	(cons x (recur (car rest) (cdr rest)))
+	x)))
+(define list* cons*)
+
 (define (compile-define exp init global run-exps)
   (let ((name (cadr exp))
         (args (cddr exp)))
@@ -32,7 +70,7 @@
 
 (define (compile-exp exp init global run-exps)
   (cond ((not (pair? exp)) #f)
-        ((eq? (car exp) 'define)
+        ((eq? (source-unvec (car exp)) 'define)
          (compile-define exp init global run-exps))
         (else
          (set-cdr! run-exps
@@ -60,6 +98,18 @@
   (display (string-append "#include <stdlib.h>") port) (newline port)
   (newline port)
   (display (translate-local-vars (function-vars global) 0) port)
+  (for-each
+   (lambda (sym-pair)
+     (display (string-append
+               "const char* " (ensure-string (cadr sym-pair)) " = \""
+               (ensure-string (car sym-pair))  "\";")
+              port)
+     (newline port)
+     (display (string-append
+               "static lobject " (ensure-string (caddr sym-pair)) ";")
+              port)
+     (newline port))
+   symbol-strings)
   (newline port)
   (for-each
    (lambda (x)
@@ -95,7 +145,6 @@
     (list "stack_bottom = (char*)&" (cdar (function-args main)))
     (list "entry_point = &" entry-point)
     (list "init_heap()")
-    (list "init_symbol()")
     (list "init_builtin()")
     (list "init()")
     (list "num_toplevel_exps = " (length run-exps))
@@ -111,6 +160,12 @@
        (list "toplevel_exps[" i "] = (function1_t)"
              (find-lambda-name lambda-exp))
        main)))
+  (for-each
+   (lambda (sym-list)
+     (push-function-body!
+       (list (caddr sym-list) " = intern( (char*) " (cadr sym-list) ")")
+       main))
+   symbol-strings)
   (let ((cont (gensym "cont")))
     (push-function-vars! (cons 'cont_t cont) main)
     (push-function-body!
@@ -145,7 +200,8 @@
       (lambda (inp)
         (do ((exp (read inp) (read inp)))
             ((eof-object? exp) #t)
-          (compile-exp exp init global run-exps))))
+          (let ((exp2 (encode-source-symbols exp)))
+            (compile-exp exp2 init global run-exps)))))
 
     (push-function-vars!
      (cons "static function1_t"

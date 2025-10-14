@@ -1,6 +1,7 @@
 (load "utilities.scm")
 
 (define num-arguments-limit 4)
+(define symbol-strings '())
 
 (define (has-optional? args)
   (cond ((null? args) #f)
@@ -80,7 +81,7 @@
 (define (translate-builtin-call fn args . optional?)
   (string-append
    "builtin_"
-   (lisp-name-to-c-name (ensure-string fn))
+   (lisp-name-to-c-name (ensure-string fn #t))
    (if (null? optional?)
        "((void*)0, (cont_t*)"
        (string-append
@@ -195,7 +196,6 @@
         ((has-lambda? (car exp)) #t)
         (else (check-arguments (cdr exp)))))
 
-
 (define (lisp-name-to-c-name str)
   (do ((i 0 (+ i 1))
        (acc '()))
@@ -211,6 +211,7 @@
             (else (set! acc (cons c acc)))))))
 
 (define (lookup-var var env)
+  ; function
   (define (iter env level)
     (cond ((null? env) #f)
           ((member var (car env))
@@ -233,9 +234,11 @@
        "->vars[" pos "]")))
 
 (define (gen-builtin-as-variable var)
-  (list "builtin_clos_" (lisp-name-to-c-name (ensure-string var))))
+  ; function
+  (list "builtin_clos_" (lisp-name-to-c-name (ensure-string var #t))))
 
 (define (gen-lookup-var var env fun)
+  ; function
   (let* ((loc (lookup-var var env))
          (link (and loc (car loc)))
          (pos (and loc (cadr loc))))
@@ -268,38 +271,52 @@
     (list "&" clos)))
 
 (define (gen-literal-code exp env fun)
+  ; function
   (cond ((number? exp)
          (list 'int2fixnum exp))
+        ((vector? exp)
+         (gen-lookup-var exp env fun))
         ((symbol? exp)
          (gen-lookup-var exp env fun))
         ((boolean? exp) exp)
         ((null? exp) exp)
-        ((and (pair? exp) (eq? (car exp) 'quote))
+        ((and (pair? exp) (eq? (source-unvec (car exp)) 'quote))
          (gen-quote-code exp env fun))
-        ((and (pair? exp) (eq? (car exp) 'set!))
+        ((and (pair? exp) (eq? (source-unvec (car exp)) 'set!))
          (gen-set!-code exp env fun))
-        ((and (pair? exp) (eq? (car exp) 'lambda))
+        ((and (pair? exp) (eq? (source-unvec (car exp)) 'lambda))
          (gen-literal-lambda-code exp env fun))))
 
+(define (update-symbol-strings smbl)
+  (let ((sym-search (assq smbl symbol-strings)))
+    (if sym-search sym-search
+        (let* ((symstr (gensym "symstr"))
+               (symobj (gensym "symobj"))
+               (new-sym-str-list
+                (list smbl symstr symobj)))
+          (set! symbol-strings
+                (cons new-sym-str-list symbol-strings))
+          new-sym-str-list))))
+
 (define (gen-quote-code exp env fun)
-  (cond ((number? (cadr exp))
-         (list 'int2fixnum (cadr exp)))
-        ((boolean? (cadr exp)) (cadr exp))
-        ((null? (cadr exp)) (cadr exp))
-        ((symbol? (cadr exp))
-         (let ((sym (gensym "sym")))
-           (push-function-vars! (cons "static lobject" sym) fun)
-           (push-function-body!
-            (list 'if (list sym " == 0")
-                  (list
-                   (list sym " = intern(\"" (cadr exp) "\")")
-                   ;;(list "add_symbol_rootset(&" sym ")")
-                   )
-                  (list ""))
-            fun)
-           sym))
-        (else
-         (error "Not implemented"))))
+  ; function with set!s
+  (let ((arg (source-unvec (cadr exp))))
+    (cond ((number? arg)
+           (list 'int2fixnum arg))
+          ((boolean? arg) arg)
+          ((null? arg) arg)
+          ((symbol? arg)
+           (let* ((smbl arg)
+                  (sym (gensym "sym"))
+                  (sym-str-list (update-symbol-strings smbl))
+                  (sym-obj (caddr sym-str-list)))
+             (push-function-vars! (cons "lobject" sym) fun)
+             (push-function-body!
+              (list sym " = " sym-obj)
+              fun)
+             sym))
+          (else
+           (error "Not implemented")))))
 
 (define (gen-if-code exp env fun)
   (list 'if
@@ -437,6 +454,7 @@
      '(")"))))
 
 (define (gen-lambda-code exp env)
+  ; side-effect sub
   (if (find-lambda-name exp)
       'already-compiled
       (let ((fun (make-function))
@@ -483,3 +501,4 @@
    (lambda (x)
      (display (translate-to-c (cdr x)))(newline))
    compiled-results))
+

@@ -6,12 +6,45 @@
     (string->symbol
      (string-append prefix (number->string num-gensym) "_"))))
 
-(define (ensure-string x)
+(define (gensym-source smbl)
+  (let ((c-name (valid-c-name (ensure-string smbl))))
+    (gensym (string-append "source_" c-name))))
+
+(define (valid-c-name str)
+  (let loop ((i 0)
+             (acc '()))
+    (let ((c (and (< i (string-length str))
+                  (string-ref str i))))
+      (cond
+        ((not c) ; c is only false if all chars were checked
+         (apply string (reverse acc)))
+        ((eq? c #\_)
+         (loop (+ i 1) (cons c acc)))
+        ((and (char>=? c #\A) (char<=? c #\Z))
+         (loop (+ i 1) (cons c acc)))
+        ((and (char>=? c #\a) (char<=? c #\z))
+         (loop (+ i 1) (cons c acc)))
+        ((and (char>=? c #\0) (char<=? c #\9) (> i 0))
+         (loop (+ i 1) (cons c acc)))
+        (else (loop (+ i 1) acc))))))
+
+(define (ensure-string x . builtin)
   (cond ((null? x) "")
         ((symbol? x) (symbol->string x))
         ((number? x) (number->string x))
         ((pair? x) (string-append (ensure-string (car x))
                                   (ensure-string (cdr x))))
+        ((vector? x)
+         (ensure-string 
+          (cond
+            ((and (pair? builtin) (car builtin))
+             (vector-ref x 0))
+            ((vector-ref x 1)
+             (vector-ref x 1))
+            (else
+             (let ((smbl (gensym-source (vector-ref x 0))))
+               (vector-set! x 1 smbl)
+               smbl)))))
         (else x)))
 
 (define (position x lst)

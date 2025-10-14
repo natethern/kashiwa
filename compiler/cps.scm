@@ -1,7 +1,5 @@
 (load "utilities.scm")
 
-(define not-cps-proc-list '())
-
 (define (cps-trans-if args cont)
   (let ((test (car args))
         (then (cadr args))
@@ -46,11 +44,6 @@
            (cps-trans (car rargs) (list 'lambda (list (car rparam)) acc))
            acc))))
 
-(define (cps-trans-not-cps-proc fn args cont)
-  (let* ((param (map (lambda (arg) (if (pair? arg) (gensym) arg)) args))
-         (call (list cont (cons fn param))))
-    (cps-trans-evlis (reverse args) (reverse param) call)))
-
 (define (cps-trans-proc fn args cont)
   (let* ((param (map (lambda (arg) (if (pair? arg) (gensym) arg))
                      (cons fn args)))
@@ -58,12 +51,11 @@
     (cps-trans-evlis (reverse (cons fn args)) (reverse param) call)))
 
 (define (cps-trans-pair op args cont)
-  (cond ((eq? op 'quote) (list cont (cons op args)))
-        ((eq? op 'if) (cps-trans-if args cont))
-        ((eq? op 'begin) (cps-trans-begin args cont))
-        ((eq? op 'lambda) (cps-trans-lambda args cont))
-        ((eq? op 'set!) (cps-trans-set! args cont))
-        ((member op not-cps-proc-list) (cps-trans-not-cps-proc op args cont))
+  (cond ((eq? (source-unvec op) 'quote) (list cont (cons op args)))
+        ((eq? (source-unvec op) 'if) (cps-trans-if args cont))
+        ((eq? (source-unvec op) 'begin) (cps-trans-begin args cont))
+        ((eq? (source-unvec op) 'lambda) (cps-trans-lambda args cont))
+        ((eq? (source-unvec op) 'set!) (cps-trans-set! args cont))
         (else (cps-trans-proc op args cont))))
 
 (define (cps-trans exp cont)
@@ -74,3 +66,4 @@
 (define (cps exp)
   (let ((cont (gensym)))
     (cps-trans exp (list 'lambda (list cont) cont))))
+
